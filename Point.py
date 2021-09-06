@@ -58,16 +58,7 @@ else:
     print("They are not equal")
 
 
-
-
-
-
-
-
-
-
-
-
+# Delet the object 
 del p1
 del p2
 del p3
