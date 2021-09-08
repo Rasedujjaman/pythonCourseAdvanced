@@ -4,7 +4,14 @@
 import tkinter as tk
 
 
-LIGHT_GRAY = 'gray'
+LIGHT_GRAY = '#F5F5F5'
+LABEL_COLOR = '#25265E'
+SMALL_FONT_STYLE =("Arial", 16)
+LARGE_FONT_STYLE =("Arial", 40, "bold")
+DIGITS_FONT_STYLE = ("Arial", 24, "bold")
+WHITE = '#FFFFFF'
+
+
 
 class Calculator:
     def __init__(self):
@@ -13,9 +20,54 @@ class Calculator:
         self.window.resizable(0,0)
         self.window.title("Simple calculator")
         
+        # the label 
+        self.total_expression = "0"
+        self.current_expression = "0"
+        
+        
+        
         # Display and buttons frame
         self.display_frame = self.create_display_frame()
         self.buttons_frame = self.create_buttons_frame()
+        
+        # the label
+        self.tatal_label, self.label = self.create_display_labels()
+    
+        # the digits
+        self.digits = {
+            7:(1,1), 8:(1,2), 9:(1,3),
+            4:(2,1), 5:(2,2), 6:(2,3),
+            1:(3,1), 2:(3,2), 3:(3,3),
+            0:(4, 2), '.':(4,1)
+            }
+    
+    
+        self.crate_digit_buttons()
+    
+    
+    
+    def crate_digit_buttons(self):
+        for digit, gird_value in self.digits.items():
+            button = tk.Button(self.buttons_frame, text=str(digit), bg = WHITE, fg=LABEL_COLOR,font=DIGITS_FONT_STYLE)
+            button.grid(row=gird_value[0], column=gird_value[1], sticky=tk.NSEW)
+        
+    
+    
+    
+    
+    def create_display_labels(self):
+        
+        total_label = tk.Label(self.display_frame, text=self.total_expression, anchor=tk.E, bg =LIGHT_GRAY,fg=LABEL_COLOR, padx=24, font = SMALL_FONT_STYLE)
+        total_label.pack(expand = True, fill = "both")
+        
+        label = tk.Label(self.display_frame, text=self.current_expression, anchor=tk.E, bg =LIGHT_GRAY,fg=LABEL_COLOR, padx=24, font = LARGE_FONT_STYLE)
+        label.pack(expand = True, fill = "both")
+        
+        return total_label, label
+        
+        
+        
+        
         
     
     def run(self):
