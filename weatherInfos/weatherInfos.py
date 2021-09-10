@@ -29,7 +29,6 @@ LIGHT_BLUE ='#CCEDFF'
 
 
 
-
 class Weather:
     def __init__(self): # this is the constructor method
         self.window = tk.Tk()
@@ -48,7 +47,7 @@ class Weather:
       
         
         
-        
+        self.photo = tk.PhotoImage(file='weather_icons/01d.png')
         
         self.getWeather(self.weather_data["city"])
         
@@ -58,7 +57,17 @@ class Weather:
         
         # Create the display labels
         self.display_labels = self.create_display_labels()
-        #self.update_display_labels()
+        
+        # display labels variables
+        self.location_label
+        self.image_label
+        self.temp_label
+        self.weather_label
+        
+        
+        
+        # Update display labels
+        # self.update_display_labels()
         
         # Create search entry box and button
         self.current_city = tk.StringVar()  # stirng variable class
@@ -73,7 +82,7 @@ class Weather:
         CITY = self.current_city.get()
         # json_data = requests.get(self.url.format(CITY,  self.weather_api)).json()
         self.getWeather(CITY)
-        print(self.weather_data)
+        self.update_display_labels()
         
     
     
@@ -136,8 +145,8 @@ class Weather:
         location_label = tk.Label(self.display_frame, text='', font=SMALL_FONT_STYLE)
         location_label.pack()
         
-        image = tk.Label(self.display_frame, bitmap ='')
-        image.pack()
+        image_label = tk.Label(self.display_frame, image = self.photo)
+        image_label.pack()
         
         temp_label = tk.Label(self.display_frame, text='Temperature', font=SMALL_FONT_STYLE)
         temp_label.pack()
@@ -145,7 +154,28 @@ class Weather:
         weather_label = tk.Label(self.display_frame, text='Weather', font= SMALL_FONT_STYLE)
         weather_label.pack()
         
-        return location_label, image, temp_label, weather_label
+        self.location_label = location_label
+        self.image_label = image_label
+        self.temp_label = temp_label
+        self.weather_label = weather_label
+        return location_label, image_label, temp_label, weather_label
+    
+    
+    
+    def update_display_labels(self):
+        self.location_label['text'] = '{}, {}'.format(self.weather_data["country"], self.weather_data["city"])
+        
+       
+        photo = tk.PhotoImage(file='weather_icons/{}.png'.format(self.weather_data["icon"]))
+        self.photo = photo
+        self.image_label['image'] = photo
+        
+        self.temp_label['text'] = '{:.2f}C'.format(self.weather_data["temp_celsius"])
+        self.weather_label['text'] = '{}'.format(self.weather_data["weather"])
+        
+        
+        
+    
     
     
     def run(self):
