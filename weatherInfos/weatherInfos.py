@@ -2,20 +2,19 @@
 # Here we will create a weather app using json and tkinter
 
 # JSON (JavaScript Object Notation), specified by RFC 7159 and
-# is a lightweight data interchange format inspired by JavaScript object literal syntax
+# is a lightweight data interchange format between client and servers
 
 
 # Since the API key is confidential we store the key in system environment variable
 
 import json   
 import tkinter as tk
+from tkinter import messagebox
 import os
+import socket
 import requests
 
 
-# url = api.openweathermap.org/data/2.5/weather?q={}&appid={}
-
-# print(weather_api)
 
 LIGHT_GRAY = '#F5F5F5'
 LABEL_COLOR = '#25265E'
@@ -37,19 +36,28 @@ class Weather:
         self.window.title("Weather infos")
     
     
+        
+        # Retrieve the current location
+        # https://ipstack.com/quickstart
+#         self.host_name = socket.gethostname()
+#         self.IP_addres = socket.gethostbyname(self.host_name)  # get the ip address
+        self.location_api = os.environ['locationAPI_key'] # retrive the API key from the system environment
+        self.getCurrentLocation()
+        
+        
         # The weather infos
         self.url = 'http://api.openweathermap.org/data/2.5/weather?q={}&appid={}'
         self.weather_api = os.environ['weatherAPI_key'] # retrive the API key from the system environment
         
        
-        self.weather_data = {"city":"", "country":"", "temp_celsius":"", "temp_fahrenheit":""
+        self.weather_data = {"city":self.getCurrentLocation(), "country":"", "temp_celsius":"", "temp_fahrenheit":""
                              , "icon": "", "weather": ""}
       
         
-        
+        self.getWeather(self.weather_data["city"])
         self.photo = tk.PhotoImage(file='weather_icons/01d.png')
         
-        self.getWeather(self.weather_data["city"])
+        
         
         # Create two frames
         self.display_frame = self.create_display_frame() # To display the weather informations
@@ -79,17 +87,18 @@ class Weather:
     
     
     def search(self):
-        CITY = self.current_city.get()
-        # json_data = requests.get(self.url.format(CITY,  self.weather_api)).json()
-        self.getWeather(CITY)
-        self.update_display_labels()
-        
+        CITY = self.current_city.get() 
+        try:
+            self.getWeather(CITY)
+        except Exception as e:
+            messagebox.showerror('Error', f"Can not find city {CITY}") # display if the city is not found
+        finally:
+            self.update_display_labels()
     
     
     def getWeather(self, city):
         if (len(city)> 0):
             json_data = requests.get(self.url.format(city,  self.weather_api)).json()
-  
             if json_data:
                 city = json_data['name']
                 country = json_data['sys']['country']
@@ -117,12 +126,12 @@ class Weather:
     
     
     def create_display_frame(self):
-        frame = tk.Frame(self.window, height = 321, bg=LIGHT_GRAY)
+        frame = tk.Frame(self.window, height = 321, bg=LIGHT_BLUE )
         frame.pack(expand = True, fill= "both")
         return frame
 
     def create_menu_frame(self):
-        frame = tk.Frame(self.window)
+        frame = tk.Frame(self.window, bg=LIGHT_GRAY)
         frame.pack(expand = True, fill= "both")
         return frame
     
@@ -158,6 +167,9 @@ class Weather:
         self.image_label = image_label
         self.temp_label = temp_label
         self.weather_label = weather_label
+        
+        self.update_display_labels()
+        
         return location_label, image_label, temp_label, weather_label
     
     
@@ -170,11 +182,21 @@ class Weather:
         self.photo = photo
         self.image_label['image'] = photo
         
-        self.temp_label['text'] = '{:.2f}C'.format(self.weather_data["temp_celsius"])
-        self.weather_label['text'] = '{}'.format(self.weather_data["weather"])
+        self.temp_label['text'] = f'{self.weather_data["temp_celsius"]:.2f}\u2103'
+        self.weather_label['text'] = f'{(self.weather_data["weather"])}'
         
         
+    def getCurrentLocation(self):
+        send_url = f"http://api.ipstack.com/check?access_key={self.location_api}"
+        geo_req = requests.get(send_url)
+        geo_json = json.loads(geo_req.text)
+        latitude = geo_json['latitude']
+        longitude = geo_json['longitude']
+        city = geo_json['city']
+        return city
+       
         
+
     
     
     
